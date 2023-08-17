@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapScreen extends StatelessWidget {
-  final double lat; // Latitude of exam location
-  final double lng; // Longitude of exam location
+  final double lat;
+  final double lng;
 
   MapScreen({required this.lat, required this.lng});
 
@@ -15,7 +15,7 @@ class MapScreen extends StatelessWidget {
       ),
       body: GoogleMap(
         initialCameraPosition: CameraPosition(
-          target: LatLng(lat, lng), // Set the exam location's coordinates
+          target: LatLng(lat, lng),
           zoom: 12,
         ),
       ),

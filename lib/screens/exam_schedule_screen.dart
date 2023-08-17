@@ -72,7 +72,7 @@ class _ExamScheduleScreenState extends State<ExamScheduleScreen> {
         itemBuilder: (context, index) {
           return Column(
             children: [
-              SizedBox(height: 8), // Add spacing between the items
+              SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
@@ -87,14 +87,14 @@ class _ExamScheduleScreenState extends State<ExamScheduleScreen> {
                 },
                 child: Text('Open Map'),
               ),
-              SizedBox(height: 2), // Add smaller spacing
+              SizedBox(height: 2),
               ListTile(
                 title: Text(exams[index]['subject'] ?? '', style: TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Text(
                   'Date: ${exams[index]['date'] ?? ''}\nTime: ${exams[index]['time'] ?? ''}',
                 ),
               ),
-              SizedBox(height: 2), // Add spacing between exam entries
+              SizedBox(height: 2),
             ],
           );
         },

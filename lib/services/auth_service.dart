@@ -6,7 +6,7 @@ class AuthService {
   List<User> users = [
     User(id: '1', username: 'admin', password: 'admin'),
     User(id: '2', username: 'user', password: 'user'),
-    // Add more users as needed
+
   ];
 
   User? currentUser;
