@@ -1,89 +1,63 @@
+// exam_detail_screen.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../widgets/add_schedule_form.dart';
-import '../widgets/exam_schedule_list.dart';
-import '../screens/calendar_screen.dart';
-import '../services/auth_service.dart';
-import 'login_screen.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:lab3/screens/map_screen.dart';
 
-class ExamScheduleScreen extends StatefulWidget {
-  @override
-  _ExamScheduleScreenState createState() => _ExamScheduleScreenState();
-}
+class ExamDetailScreen extends StatelessWidget {
+  final String subject;
+  final String date;
+  final String time;
+  final double lat;
+  final double lng;
 
-class _ExamScheduleScreenState extends State<ExamScheduleScreen> {
-  List<Map<String, String?>> exams = [
-    {'subject': 'Math', 'date': '2023-08-15', 'time': '09:00 AM'},
-    {'subject': 'History', 'date': '2023-08-17', 'time': '10:30 AM'},
-    {'subject': 'Physics', 'date': '2023-08-20', 'time': '02:00 PM'},
-  ]; // Predefined exams
-
-  void _openAddScheduleSegment(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Add Schedule', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              AddScheduleForm(
-                onSubjectAdded: (newSubject, newDate, newTime) {
-                  setState(() {
-                    exams.add({'subject': newSubject, 'date': newDate, 'time': newTime});
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  ExamDetailScreen({
+    required this.subject,
+    required this.date,
+    required this.time,
+    required this.lat,
+    required this.lng,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
-
-    if (!authService.isLoggedIn) {
-      return LoginScreen();
-    }
-
     return Scaffold(
       appBar: AppBar(
-        title: Text('Exam Schedule'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              _openAddScheduleSegment(context);
-            },
+        title: Text('Exam Details'),
+      ),
+      body: Column(
+        children: [
+          ListTile(
+            title: Text(subject, style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text('Date: $date\nTime: $time'),
           ),
-          IconButton(
-            icon: Icon(Icons.calendar_today),
+          SizedBox(height: 10),
+          Expanded(
+            child: GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: LatLng(lat, lng),
+                zoom: 12,
+              ),
+              markers: {
+                Marker(
+                  markerId: MarkerId('examMarker'),
+                  position: LatLng(lat, lng),
+                  infoWindow: InfoWindow(title: subject, snippet: 'Date: $date\nTime: $time'),
+                ),
+              },
+            ),
+          ),
+          ElevatedButton(
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => CalendarScreen(exams: exams)),
+                MaterialPageRoute(
+                  builder: (context) => MapScreen(lat: lat, lng: lng),
+                ),
               );
             },
+            child: Text('Open Map'),
           ),
         ],
-      ),
-      body: ListView.builder(
-        itemCount: exams.length,
-        itemBuilder: (context, index) {
-          return Card(
-            child: ListTile(
-              title: Text(exams[index]['subject'] ?? '', style: TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text(
-                'Date: ${exams[index]['date'] ?? ''}\nTime: ${exams[index]['time'] ?? ''}',
-              ),
-            ),
-          );
-        },
       ),
     );
   }

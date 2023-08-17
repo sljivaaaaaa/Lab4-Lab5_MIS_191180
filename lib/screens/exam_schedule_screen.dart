@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import '../widgets/add_schedule_form.dart';
-import '../widgets/exam_schedule_list.dart';
-import '../screens/calendar_screen.dart';
-import '../services/auth_service.dart';
-import 'login_screen.dart';
+import 'package:lab3/widgets/add_schedule_form.dart';
+import 'package:lab3/screens/map_screen.dart';
+import 'package:lab3/screens/exam_detail_screen.dart';
 
 class ExamScheduleScreen extends StatefulWidget {
   @override
@@ -14,27 +10,11 @@ class ExamScheduleScreen extends StatefulWidget {
 
 class _ExamScheduleScreenState extends State<ExamScheduleScreen> {
   List<Map<String, String?>> exams = [
-    {'subject': 'Math', 'date': '2023-08-15', 'time': '09:00 AM'},
-    {'subject': 'History', 'date': '2023-08-17', 'time': '10:30 AM'},
-    {'subject': 'Physics', 'date': '2023-08-20', 'time': '02:00 PM'},
-  ]; // Predefined exams
-
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeNotifications();
-  }
-
-  void _initializeNotifications() async {
-    const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('app_icon');
-    final InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-    );
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-  }
+    {'subject': 'Math', 'date': '2023-08-15', 'time': '09:00 AM', 'lat': '37.7749', 'lng': '-122.4194'},
+    {'subject': 'Physics', 'date': '2023-08-16', 'time': '10:30 AM', 'lat': '37.7749', 'lng': '-122.4194'},
+    {'subject': 'Chemistry', 'date': '2023-08-17', 'time': '02:00 PM', 'lat': '37.7749', 'lng': '-122.4194'},
+    // Other predefined exams
+  ];
 
   void _openAddScheduleSegment(BuildContext context) {
     showModalBottomSheet(
@@ -61,97 +41,61 @@ class _ExamScheduleScreenState extends State<ExamScheduleScreen> {
     );
   }
 
-  void _showSingleNotification(Map<String, String?> exam) async {
-    final String subject = exam['subject'] ?? 'No Subject';
-    final String time = exam['time'] ?? 'No Time';
-    final String date = exam['date'] ?? 'No Date';
-
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-    AndroidNotificationDetails(
-      'exam_schedule_channel',
-      'Exam Schedule Notifications',
-
-      importance: Importance.high,
-      priority: Priority.high,
-    );
-
-    const NotificationDetails platformChannelSpecifics =
-    NotificationDetails(android: androidPlatformChannelSpecifics);
-
-    await flutterLocalNotificationsPlugin.show(
-      0,
-      'Exam Reminder',
-      'You have an exam on $date at $time for $subject.',
-      platformChannelSpecifics,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
-
-    if (!authService.isLoggedIn) {
-      return LoginScreen();
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Exam Schedule'),
         actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: IconButton(
-                icon: Icon(Icons.add),
-                onPressed: () {
-                  _openAddScheduleSegment(context);
-                },
-              ),
-            ),
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              _openAddScheduleSegment(context);
+            },
           ),
-          Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: IconButton(
-                icon: Icon(Icons.calendar_today),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => CalendarScreen(exams: exams)),
-                  );
-                },
-              ),
-            ),
+          IconButton(
+            icon: Icon(Icons.calendar_today),
+            onPressed: () {
+              Navigator.pushNamed(context, '/calendar');
+            },
           ),
-          Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: IconButton(
-                icon: Icon(Icons.notifications),
-                onPressed: () {
-                  for (var exam in exams) {
-                    _showSingleNotification(exam);
-                  }
-                },
-              ),
-            ),
+          IconButton(
+            icon: Icon(Icons.notifications),
+            onPressed: () {
+              Navigator.pushNamed(context, '/notif');
+            },
           ),
         ],
       ),
-
       body: ListView.builder(
         itemCount: exams.length,
         itemBuilder: (context, index) {
-          return Card(
-            child: ListTile(
-              title: Text(exams[index]['subject'] ?? '', style: TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text(
-                'Date: ${exams[index]['date'] ?? ''}\nTime: ${exams[index]['time'] ?? ''}',
+          return Column(
+            children: [
+              SizedBox(height: 8), // Add spacing between the items
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MapScreen(
+                        lat: double.parse(exams[index]['lat'] ?? '0'),
+                        lng: double.parse(exams[index]['lng'] ?? '0'),
+                      ),
+                    ),
+                  );
+                },
+                child: Text('Open Map'),
               ),
-            ),
+              SizedBox(height: 2), // Add smaller spacing
+              ListTile(
+                title: Text(exams[index]['subject'] ?? '', style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text(
+                  'Date: ${exams[index]['date'] ?? ''}\nTime: ${exams[index]['time'] ?? ''}',
+                ),
+              ),
+              SizedBox(height: 2), // Add spacing between exam entries
+            ],
           );
         },
       ),

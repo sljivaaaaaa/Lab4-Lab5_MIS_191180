@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lab3/screens/calendar_screen.dart'; // Import the CalendarScreen widget
+import 'package:lab3/screens/notification_screen.dart'; // Import the NotificationsScreen widget
 
 class AddScheduleForm extends StatefulWidget {
   final Function(String, String, String) onSubjectAdded;
@@ -38,14 +40,37 @@ class _AddScheduleFormState extends State<AddScheduleForm> {
             String newSubject = subjectNameController.text;
             String newDate = dateController.text;
             String newTime = timeController.text;
+
             if (newSubject.isNotEmpty && newDate.isNotEmpty && newTime.isNotEmpty) {
+              // Call the provided callback to add the new exam
               widget.onSubjectAdded(newSubject, newDate, newTime);
+
+              // Clear text controllers and close the bottom sheet
               subjectNameController.clear();
               dateController.clear();
               timeController.clear();
+              Navigator.pop(context);
             }
           },
           child: Text('Add Schedule'),
+        ),
+        SizedBox(height: 16), // Add some spacing
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/calendar');
+              },
+              child: Text('Calendar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/notif');
+              },
+              child: Text('Notifications'),
+            ),
+          ],
         ),
       ],
     );
